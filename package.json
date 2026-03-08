@@ -1,0 +1,48 @@
+{
+  "name": "citedhealth",
+  "version": "0.1.0",
+  "description": "TypeScript API client for Cited Health — evidence-based supplement research backed by PubMed studies. Zero dependencies.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "supplement",
+    "evidence",
+    "health",
+    "pubmed",
+    "research",
+    "nutrition",
+    "vitamins",
+    "minerals",
+    "herbs",
+    "evidence-grade",
+    "api-client",
+    "citedhealth"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dobestan/citedhealth-js"
+  },
+  "homepage": "https://citedhealth.com",
+  "license": "MIT",
+  "author": "Cited Health Inc.",
+  "devDependencies": {
+    "tsup": "^8.0",
+    "typescript": "^5.7",
+    "vitest": "^3.0"
+  }
+}
