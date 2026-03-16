@@ -1,25 +1,30 @@
 # citedhealth
 
-[![npm version](https://agentgif.com/badge/npm/citedhealth/version.svg)](https://www.npmjs.com/package/citedhealth)
+[![npm](https://img.shields.io/npm/v/citedhealth)](https://www.npmjs.com/package/citedhealth)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](https://www.npmjs.com/package/citedhealth)
 
-TypeScript API client for [Cited Health](https://citedhealth.com) — the evidence-based supplement research platform where every health claim is backed by peer-reviewed PubMed research. Search ingredients, conditions, evidence grades (A-F), and indexed papers. Zero dependencies, uses native `fetch`. Free, no authentication required.
+TypeScript client for the [CITED Health](https://citedhealth.com) evidence-based supplement API. Query 74 ingredients, 30 conditions, 152 evidence links, and 2,881 PubMed papers — zero dependencies, native fetch.
 
-Cited Health maintains a growing network of supplement review sites covering hair health, sleep, and more. The platform indexes PubMed papers, extracts study data using AI, and calculates evidence grades from A (Strong — multiple RCTs/meta-analyses) to F (Negative — most studies show no effect).
+CITED Health indexes PubMed research and calculates evidence grades from A (strong: multiple RCTs/meta-analyses) to F (negative: most studies show no effect). The API is free, no authentication required, and returns JSON with CORS enabled.
 
 > **Explore the evidence at [citedhealth.com](https://citedhealth.com)** — [Ingredients](https://citedhealth.com/api/ingredients/) · [Evidence](https://citedhealth.com/api/evidence/) · [Papers](https://citedhealth.com/api/papers/) · [Developer Docs](https://citedhealth.com/developers/)
+
+<p align="center">
+  <img src="demo.gif" alt="citedhealth TypeScript client demo — searching biotin evidence grades, PubMed papers, and supplement data from citedhealth.com" width="800">
+</p>
 
 ## Table of Contents
 
 - [Install](#install)
 - [Quick Start](#quick-start)
 - [What You Can Do](#what-you-can-do)
-  - [Search Ingredients](#search-ingredients)
+  - [Search Supplement Ingredients](#search-supplement-ingredients)
   - [Check Evidence Grades](#check-evidence-grades)
   - [Search PubMed Papers](#search-pubmed-papers)
-  - [Embed Evidence Badges](#embed-evidence-badges)
+- [Error Handling](#error-handling)
+- [Evidence Grades](#evidence-grades)
 - [API Reference](#api-reference)
 - [TypeScript Types](#typescript-types)
 - [Learn More About Evidence-Based Supplements](#learn-more-about-evidence-based-supplements)
@@ -37,147 +42,192 @@ npm install citedhealth
 ```typescript
 import { CitedHealth } from "citedhealth";
 
-const api = new CitedHealth();
+const client = new CitedHealth();
 
-// Search for supplement ingredients
-const data = await api.ingredients({ q: "biotin" });
-console.log(data.results[0].name); // Biotin
+// Search ingredients
+const ingredients = await client.searchIngredients("biotin");
+console.log(ingredients[0].name); // "Biotin"
 
-// Check evidence for a supplement-condition pair
-const evidence = await api.evidence({ ingredient: "biotin", condition: "hair-loss" });
-const link = evidence.results[0];
-console.log(`Grade: ${link.grade}, Studies: ${link.total_studies}`);
+// Get evidence grade for ingredient-condition pair
+const evidence = await client.getEvidence("biotin", "hair-loss");
+console.log(`Grade: ${evidence.grade} — ${evidence.grade_label}`);
+// Grade: A — Strong Evidence
+
+// Search PubMed papers
+const papers = await client.searchPapers("biotin hair loss");
+console.log(`${papers.length} papers found`);
 ```
 
 ## What You Can Do
 
-### Search Ingredients
+### Search Supplement Ingredients
 
-Cited Health catalogs supplement ingredients with their mechanisms of action, categories, and evidence profiles. Each ingredient is linked to conditions through evidence grades.
+Find ingredients by name or filter by category. Each ingredient includes mechanism of action, recommended dosage by population, available forms, and evidence linkage.
+
+| Category | Examples |
+|----------|---------|
+| vitamins | Biotin, Vitamin D, Vitamin C |
+| minerals | Magnesium, Zinc, Iron |
+| amino-acids | L-Theanine, Tryptophan, Glycine |
+| herbs | Ashwagandha, Valerian, Melatonin |
 
 ```typescript
 import { CitedHealth } from "citedhealth";
 
-const api = new CitedHealth();
+const client = new CitedHealth();
 
-// List all ingredients
-const all = await api.ingredients();
+// Search by keyword — returns matching ingredients
+const results = await client.searchIngredients("melatonin");
+console.log(results[0].mechanism); // "Regulates circadian rhythm..."
 
-// Search by name
-const results = await api.ingredients({ q: "melatonin" });
+// Filter by category
+const minerals = await client.searchIngredients(undefined, "minerals");
 
-// Filter by category (vitamins, herbs, amino-acids, minerals, etc.)
-const vitamins = await api.ingredients({ category: "vitamins" });
+// Get a specific ingredient by slug
+const biotin = await client.getIngredient("biotin");
+console.log(biotin.recommended_dosage); // { general: "2.5-5mg", deficiency: "10-30mg" }
 ```
 
-Learn more: [Browse Ingredients](https://citedhealth.com/) · [Developer Docs](https://citedhealth.com/developers/)
+Learn more: [Browse Ingredients](https://citedhealth.com/) · [Evidence Database](https://citedhealth.com/evidence/) · [Developer Docs](https://citedhealth.com/developers/)
 
 ### Check Evidence Grades
 
-The evidence grading engine analyzes PubMed studies and calculates grades from A to F:
+Every ingredient-condition pair has an evidence grade calculated from peer-reviewed PubMed studies. Grades reflect the strength, consistency, and quantity of evidence.
 
 | Grade | Label | Criteria |
 |-------|-------|----------|
-| A | Strong | Multiple RCTs/meta-analyses, consistent positive results |
-| B | Moderate | At least one RCT, mostly consistent |
-| C | Limited | Small studies, some positive signals |
-| D | Preliminary | In vitro, case reports, pilot studies |
-| F | Negative | <30% of studies show positive effects |
+| A | Strong Evidence | Multiple RCTs/meta-analyses, consistent positive results |
+| B | Good Evidence | At least one RCT, mostly consistent |
+| C | Some Evidence | Small studies, some positive signals |
+| D | Very Early Research | In vitro, case reports, pilot studies |
+| F | Evidence Against | <30% of studies show positive effects |
 
 ```typescript
 import { CitedHealth } from "citedhealth";
 
-const api = new CitedHealth();
+const client = new CitedHealth();
 
-// Check evidence for biotin and hair loss
-const evidence = await api.evidence({ ingredient: "biotin", condition: "hair-loss" });
-for (const link of evidence.results) {
-  console.log(`${link.grade}: ${link.ingredient.name} for ${link.condition.name}`);
-  console.log(`  ${link.total_studies} studies, ${link.total_participants} participants`);
-}
+// Get evidence for a specific ingredient-condition pair
+const evidence = await client.getEvidence("biotin", "hair-loss");
+console.log(`Grade ${evidence.grade}: ${evidence.total_studies} studies`);
+// Grade A: 12 studies
+
+// Evidence includes direction of effect
+console.log(evidence.direction); // "positive" | "negative" | "neutral" | "mixed"
+console.log(evidence.summary);   // Human-readable summary
+
+// Fetch by ID if you already know it
+const ev = await client.getEvidenceById(1);
 ```
 
-Learn more: [Evidence Reviews](https://citedhealth.com/evidence/) · [Grading Methodology](https://citedhealth.com/editorial-policy/)
+Learn more: [Evidence Reviews](https://citedhealth.com/evidence/) · [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com)
 
 ### Search PubMed Papers
 
-All papers in Cited Health are indexed from PubMed and enriched with citation data from Semantic Scholar.
+All 2,881 papers are indexed from PubMed and enriched with citation data from Semantic Scholar. Filter by keyword or publication year.
 
 ```typescript
 import { CitedHealth } from "citedhealth";
 
-const api = new CitedHealth();
+const client = new CitedHealth();
 
-// Search papers by title
-const papers = await api.papers({ q: "melatonin sleep quality" });
+// Search papers by title/abstract keyword
+const papers = await client.searchPapers("melatonin sleep quality");
+for (const paper of papers) {
+  // Each paper includes PMID, journal, citation count, open access status
+  console.log(`[PMID ${paper.pmid}] ${paper.title} (${paper.publication_year})`);
+  console.log(`  ${paper.citation_count} citations — ${paper.pubmed_link}`);
+}
 
 // Filter by publication year
-const recent = await api.papers({ q: "biotin", year: 2024 });
-for (const paper of recent.results) {
-  console.log(`[PMID ${paper.pmid}] ${paper.title}`);
-}
+const recent = await client.searchPapers("biotin", 2023);
+
+// Fetch a specific paper by PubMed ID
+const paper = await client.getPaper("12345678");
 ```
 
-Learn more: [Browse Papers](https://citedhealth.com/papers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json)
+Learn more: [Browse Papers](https://citedhealth.com/papers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json) · [REST API Docs](https://citedhealth.com/developers/)
 
-### Embed Evidence Badges
+## Error Handling
 
-Get badge data to display evidence grades on external sites. Each badge shows the grade, study count, and links back to the full evidence review.
+The client throws typed errors for common failure cases:
 
 ```typescript
-import { CitedHealth } from "citedhealth";
+import { CitedHealth, NotFoundError, RateLimitError, CitedHealthError } from "citedhealth";
 
-const api = new CitedHealth();
+const client = new CitedHealth();
 
-const badge = await api.badgeData("biotin", "hair-loss");
-console.log(`Grade: ${badge.grade} (${badge.grade_label})`);
-console.log(`Studies: ${badge.studies}, Participants: ${badge.participants}`);
-console.log(`Evidence page: ${badge.url}`);
-```
-
-Or embed directly with a script tag:
-```html
-<script src="https://citedhealth.com/embed/biotin/for/hair-loss/badge.js"></script>
+try {
+  const evidence = await client.getEvidence("biotin", "nonexistent-condition");
+} catch (err) {
+  if (err instanceof NotFoundError) {
+    // 404 response or empty result for getEvidence
+    console.log(`Not found: ${err.resource} — ${err.identifier}`);
+  } else if (err instanceof RateLimitError) {
+    // 429 response (500 req/hr anonymous limit)
+    console.log(`Rate limited. Retry after ${err.retryAfter}s`);
+  } else if (err instanceof CitedHealthError) {
+    // Other API errors (5xx, network issues)
+    console.log(`API error: ${err.message}`);
+  }
+}
 ```
 
 ## API Reference
 
-| Method | Description | Parameters |
-|--------|-------------|------------|
-| `ingredients()` | List/search ingredients | `q`, `category`, `page`, `pageSize` |
-| `papers()` | List/search papers | `q`, `year`, `page`, `pageSize` |
-| `evidence()` | List evidence links | `ingredient`, `condition`, `page`, `pageSize` |
-| `badgeData()` | Get embed badge data | `ingredientSlug`, `conditionSlug` |
+| Method | Description | Returns |
+|--------|-------------|---------|
+| `searchIngredients(query?, category?)` | Search ingredients by name or category | `Promise<Ingredient[]>` |
+| `getIngredient(slug)` | Get ingredient by slug | `Promise<Ingredient>` |
+| `getEvidence(ingredientSlug, conditionSlug)` | Get evidence for ingredient-condition pair | `Promise<EvidenceLink>` |
+| `getEvidenceById(id)` | Get evidence link by numeric ID | `Promise<EvidenceLink>` |
+| `searchPapers(query?, year?)` | Search PubMed papers | `Promise<Paper[]>` |
+| `getPaper(pmid)` | Get paper by PubMed ID | `Promise<Paper>` |
+
+Full API documentation: [citedhealth.com/developers/](https://citedhealth.com/developers/)
+OpenAPI 3.1.0 spec: [citedhealth.com/api/openapi.json](https://citedhealth.com/api/openapi.json)
+
+### Constructor Options
+
+```typescript
+const client = new CitedHealth({
+  baseUrl: "https://citedhealth.com", // default
+  timeout: 30_000,                    // ms, default 30s
+});
+```
 
 ## TypeScript Types
 
-All response types are exported for type-safe usage:
+All types are exported:
 
 ```typescript
 import type {
-  BadgeData,
-  Condition,
+  CitedHealthOptions,
   EvidenceLink,
   Ingredient,
+  NestedCondition,
+  NestedIngredient,
   PaginatedResponse,
   Paper,
 } from "citedhealth";
+
+import { CitedHealthError, NotFoundError, RateLimitError } from "citedhealth";
 ```
 
 ## Learn More About Evidence-Based Supplements
 
-- **API**: [REST API Documentation](https://citedhealth.com/developers/) · [OpenAPI 3.1.0 Spec](https://citedhealth.com/api/openapi.json)
-- **Browse**: [Ingredients](https://citedhealth.com/) · [Evidence Reviews](https://citedhealth.com/evidence/) · [Papers](https://citedhealth.com/papers/)
-- **Guides**: [Editorial Policy](https://citedhealth.com/editorial-policy/) · [Medical Disclaimer](https://citedhealth.com/medical-disclaimer/)
-- **Embed**: [Badge Widget](https://citedhealth.com/developers/#embed-evidence-badges) · [Citation Formats](https://citedhealth.com/developers/)
-- **Python**: [PyPI Package](https://pypi.org/project/citedhealth/)
+- **Tools**: [Evidence Checker](https://citedhealth.com/evidence/) · [Ingredient Browser](https://citedhealth.com/) · [Paper Search](https://citedhealth.com/papers/)
+- **Browse**: [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com) · [All Ingredients](https://citedhealth.com/api/ingredients/)
+- **Guides**: [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Medical Disclaimer](https://citedhealth.com/medical-disclaimer/)
+- **API**: [REST API Docs](https://citedhealth.com/developers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json)
+- **Python**: [citedhealth on PyPI](https://pypi.org/project/citedhealth/)
 
 ## Also Available
 
 | Platform | Install | Link |
 |----------|---------|------|
 | **PyPI** | `pip install citedhealth` | [PyPI](https://pypi.org/project/citedhealth/) |
-| **MCP** | `uvx --from "citedhealth[mcp]" python -m citedhealth.mcp_server` | [Config](https://pypi.org/project/citedhealth/) |
+| **MCP** | `uvx citedhealth-mcp` | [PyPI](https://pypi.org/project/citedhealth-mcp/) |
 
 ## License
 
