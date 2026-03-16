@@ -1,95 +1,97 @@
-/**
- * CitedHealth API client — TypeScript wrapper for citedhealth.com REST API.
- *
- * Zero dependencies. Uses native `fetch`.
- */
-
+import { CitedHealthError, NotFoundError, RateLimitError } from "./errors.js";
 import type {
-  BadgeData,
+  CitedHealthOptions,
   EvidenceLink,
   Ingredient,
   PaginatedResponse,
   Paper,
 } from "./types.js";
 
+const DEFAULT_BASE_URL = "https://citedhealth.com";
+const DEFAULT_TIMEOUT = 30_000;
+
 export class CitedHealth {
-  private baseUrl: string;
+  private readonly baseUrl: string;
+  private readonly timeout: number;
 
-  constructor(baseUrl = "https://citedhealth.com") {
-    this.baseUrl = baseUrl.replace(/\/+$/, "");
+  constructor(options: CitedHealthOptions = {}) {
+    this.baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, "");
+    this.timeout = options.timeout ?? DEFAULT_TIMEOUT;
   }
 
-  private async get<T>(
-    path: string,
-    params?: Record<string, string>,
-  ): Promise<T> {
-    const url = new URL(path, this.baseUrl);
+  private async request<T>(path: string, params?: Record<string, string>): Promise<T> {
+    const url = new URL(`${this.baseUrl}${path}`);
     if (params) {
-      Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+      for (const [key, value] of Object.entries(params)) {
+        if (value) url.searchParams.set(key, value);
+      }
     }
-    const res = await fetch(url.toString());
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json() as Promise<T>;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeout);
+
+    try {
+      const resp = await fetch(url.toString(), { signal: controller.signal });
+
+      if (resp.status === 429) {
+        const retryAfter = parseInt(resp.headers.get("Retry-After") ?? "0", 10);
+        throw new RateLimitError(retryAfter);
+      }
+      if (resp.status === 404) {
+        throw new NotFoundError("resource", path);
+      }
+      if (!resp.ok) {
+        throw new CitedHealthError(`HTTP ${resp.status}`);
+      }
+
+      return (await resp.json()) as T;
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
-  /** Search supplement ingredients by name, category, or keyword. */
-  async ingredients(options?: {
-    q?: string;
-    category?: string;
-    page?: number;
-    pageSize?: number;
-  }): Promise<PaginatedResponse<Ingredient>> {
+  // ── Ingredients ───────────────────────────────────────────────────
+
+  async searchIngredients(query?: string, category?: string): Promise<Ingredient[]> {
     const params: Record<string, string> = {};
-    if (options?.q) params.q = options.q;
-    if (options?.category) params.category = options.category;
-    if (options?.page) params.page = String(options.page);
-    if (options?.pageSize) params.page_size = String(options.pageSize);
-    return this.get<PaginatedResponse<Ingredient>>(
-      "/api/ingredients/",
-      params,
-    );
+    if (query) params.q = query;
+    if (category) params.category = category;
+    const data = await this.request<PaginatedResponse<Ingredient>>("/api/ingredients/", params);
+    return data.results;
   }
 
-  /** Search PubMed-indexed papers by title or keyword. */
-  async papers(options?: {
-    q?: string;
-    year?: number;
-    page?: number;
-    pageSize?: number;
-  }): Promise<PaginatedResponse<Paper>> {
+  async getIngredient(slug: string): Promise<Ingredient> {
+    return this.request<Ingredient>(`/api/ingredients/${slug}/`);
+  }
+
+  // ── Evidence ──────────────────────────────────────────────────────
+
+  async getEvidence(ingredientSlug: string, conditionSlug: string): Promise<EvidenceLink> {
+    const data = await this.request<PaginatedResponse<EvidenceLink>>("/api/evidence/", {
+      ingredient: ingredientSlug,
+      condition: conditionSlug,
+    });
+    if (data.results.length === 0) {
+      throw new NotFoundError("evidence", `${ingredientSlug} x ${conditionSlug}`);
+    }
+    return data.results[0];
+  }
+
+  async getEvidenceById(pk: number): Promise<EvidenceLink> {
+    return this.request<EvidenceLink>(`/api/evidence/${pk}/`);
+  }
+
+  // ── Papers ────────────────────────────────────────────────────────
+
+  async searchPapers(query?: string, year?: number): Promise<Paper[]> {
     const params: Record<string, string> = {};
-    if (options?.q) params.q = options.q;
-    if (options?.year) params.year = String(options.year);
-    if (options?.page) params.page = String(options.page);
-    if (options?.pageSize) params.page_size = String(options.pageSize);
-    return this.get<PaginatedResponse<Paper>>("/api/papers/", params);
+    if (query) params.q = query;
+    if (year !== undefined) params.year = String(year);
+    const data = await this.request<PaginatedResponse<Paper>>("/api/papers/", params);
+    return data.results;
   }
 
-  /** Check evidence for a supplement-condition pair. */
-  async evidence(options?: {
-    ingredient?: string;
-    condition?: string;
-    page?: number;
-    pageSize?: number;
-  }): Promise<PaginatedResponse<EvidenceLink>> {
-    const params: Record<string, string> = {};
-    if (options?.ingredient) params.ingredient = options.ingredient;
-    if (options?.condition) params.condition = options.condition;
-    if (options?.page) params.page = String(options.page);
-    if (options?.pageSize) params.page_size = String(options.pageSize);
-    return this.get<PaginatedResponse<EvidenceLink>>(
-      "/api/evidence/",
-      params,
-    );
-  }
-
-  /** Get embeddable badge data for an ingredient-condition pair. */
-  async badgeData(
-    ingredientSlug: string,
-    conditionSlug: string,
-  ): Promise<BadgeData> {
-    return this.get<BadgeData>(
-      `/embed/${ingredientSlug}/for/${conditionSlug}/data.json`,
-    );
+  async getPaper(pmid: string): Promise<Paper> {
+    return this.request<Paper>(`/api/papers/${pmid}/`);
   }
 }

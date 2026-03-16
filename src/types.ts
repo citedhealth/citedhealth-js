@@ -1,8 +1,54 @@
-/**
- * Cited Health API response types.
- */
+/** A supplement ingredient. */
+export interface Ingredient {
+  id: number;
+  name: string;
+  slug: string;
+  category: string;
+  mechanism: string;
+  recommended_dosage: Record<string, string>;
+  forms: string[];
+  is_featured: boolean;
+}
 
-/** Paginated list response wrapper. */
+/** Nested ingredient reference in evidence links. */
+export interface NestedIngredient {
+  slug: string;
+  name: string;
+}
+
+/** Nested condition reference in evidence links. */
+export interface NestedCondition {
+  slug: string;
+  name: string;
+}
+
+/** A PubMed-indexed paper. */
+export interface Paper {
+  id: number;
+  pmid: string;
+  title: string;
+  journal: string;
+  publication_year: number | null;
+  study_type: string;
+  citation_count: number;
+  is_open_access: boolean;
+  pubmed_link: string;
+}
+
+/** Evidence for an ingredient×condition pair. */
+export interface EvidenceLink {
+  id: number;
+  ingredient: NestedIngredient;
+  condition: NestedCondition;
+  grade: "A" | "B" | "C" | "D" | "F";
+  grade_label: string;
+  summary: string;
+  direction: "positive" | "negative" | "neutral" | "mixed";
+  total_studies: number;
+  total_participants: number;
+}
+
+/** Paginated API response. */
 export interface PaginatedResponse<T> {
   count: number;
   next: string | null;
@@ -10,56 +56,8 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
-/** Ingredient summary in list responses. */
-export interface Ingredient {
-  slug: string;
-  name: string;
-  category: string;
-  mechanism: string;
-  description: string;
-  url: string;
-}
-
-/** Condition summary in list responses. */
-export interface Condition {
-  slug: string;
-  name: string;
-  description: string;
-  url: string;
-}
-
-/** Evidence link between an ingredient and condition. */
-export interface EvidenceLink {
-  ingredient: { slug: string; name: string };
-  condition: { slug: string; name: string };
-  grade: string;
-  grade_label: string;
-  total_studies: number;
-  total_participants: number;
-  direction: string;
-  url: string;
-}
-
-/** Paper indexed from PubMed. */
-export interface Paper {
-  pmid: string;
-  title: string;
-  abstract?: string;
-  publication_year: number;
-  journal?: string;
-  citation_count: number;
-  url: string;
-}
-
-/** Badge data for embedding evidence grades on external sites. */
-export interface BadgeData {
-  ingredient: string;
-  condition: string;
-  grade: string;
-  grade_label: string;
-  studies: number;
-  participants: number;
-  direction: string;
-  url: string;
-  embed_js: string;
+/** Client configuration options. */
+export interface CitedHealthOptions {
+  baseUrl?: string;
+  timeout?: number;
 }
