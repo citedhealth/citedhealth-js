@@ -72,7 +72,7 @@ export class CitedHealth {
       condition: conditionSlug,
     });
     if (data.results.length === 0) {
-      throw new NotFoundError("evidence", `${ingredientSlug} x ${conditionSlug}`);
+      throw new NotFoundError("evidence", `${ingredientSlug} \u00d7 ${conditionSlug}`);
     }
     return data.results[0];
   }
