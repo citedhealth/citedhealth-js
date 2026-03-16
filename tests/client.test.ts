@@ -234,12 +234,11 @@ describe("CitedHealth", () => {
       mockFetch.mockResolvedValueOnce(
         mockResponse({}, 429, { "Retry-After": "30" })
       );
-      try {
-        await client.searchIngredients("test");
-      } catch (err) {
-        expect(err).toBeInstanceOf(RateLimitError);
-        expect((err as RateLimitError).retryAfter).toBe(30);
-      }
+      const err: RateLimitError = await client
+        .searchIngredients("test")
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(RateLimitError);
+      expect(err.retryAfter).toBe(30);
     });
   });
 

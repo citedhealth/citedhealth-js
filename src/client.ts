@@ -9,6 +9,13 @@ import type {
 
 const DEFAULT_BASE_URL = "https://citedhealth.com";
 const DEFAULT_TIMEOUT = 30_000;
+const SAFE_SEGMENT = /^[a-zA-Z0-9._-]+$/;
+
+function validateSegment(value: string, label: string): void {
+  if (!SAFE_SEGMENT.test(value)) {
+    throw new CitedHealthError(`Invalid ${label}: ${value}`);
+  }
+}
 
 export class CitedHealth {
   private readonly baseUrl: string;
@@ -61,12 +68,15 @@ export class CitedHealth {
   }
 
   async getIngredient(slug: string): Promise<Ingredient> {
+    validateSegment(slug, "slug");
     return this.request<Ingredient>(`/api/ingredients/${slug}/`);
   }
 
   // ── Evidence ──────────────────────────────────────────────────────
 
   async getEvidence(ingredientSlug: string, conditionSlug: string): Promise<EvidenceLink> {
+    validateSegment(ingredientSlug, "slug");
+    validateSegment(conditionSlug, "slug");
     const data = await this.request<PaginatedResponse<EvidenceLink>>("/api/evidence/", {
       ingredient: ingredientSlug,
       condition: conditionSlug,
@@ -78,6 +88,7 @@ export class CitedHealth {
   }
 
   async getEvidenceById(pk: number): Promise<EvidenceLink> {
+    validateSegment(String(pk), "id");
     return this.request<EvidenceLink>(`/api/evidence/${pk}/`);
   }
 
@@ -92,6 +103,7 @@ export class CitedHealth {
   }
 
   async getPaper(pmid: string): Promise<Paper> {
+    validateSegment(pmid, "pmid");
     return this.request<Paper>(`/api/papers/${pmid}/`);
   }
 }
