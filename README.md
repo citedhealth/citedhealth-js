@@ -1,6 +1,6 @@
 # citedhealth
 
-[![npm](https://img.shields.io/npm/v/citedhealth)](https://www.npmjs.com/package/citedhealth)
+[![npm version](https://agentgif.com/badge/npm/citedhealth/version.svg)](https://www.npmjs.com/package/citedhealth)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](https://www.npmjs.com/package/citedhealth)
