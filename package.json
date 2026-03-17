@@ -1,6 +1,6 @@
 {
   "name": "citedhealth",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "TypeScript client for the CITED Health evidence-based supplement API",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -13,16 +13,28 @@
       "require": "./dist/index.cjs"
     }
   },
+  "bin": {
+    "citedhealth": "dist/cli.js"
+  },
   "sideEffects": false,
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },
-  "keywords": ["supplements", "evidence", "health", "pubmed", "api-client", "cited"],
+  "keywords": [
+    "supplements",
+    "evidence",
+    "health",
+    "pubmed",
+    "api-client",
+    "cited"
+  ],
   "author": "Cited Health Inc.",
   "license": "MIT",
   "homepage": "https://citedhealth.com",
@@ -31,11 +43,15 @@
     "url": "https://github.com/citedhealth/citedhealth-js"
   },
   "devDependencies": {
+    "@types/node": "^25.5.0",
     "tsup": "^8.0",
     "typescript": "^5.7",
     "vitest": "^3.0"
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "commander": "^14.0.3"
   }
 }
