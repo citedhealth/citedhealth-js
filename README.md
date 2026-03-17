@@ -221,12 +221,18 @@ import { CitedHealthError, NotFoundError, RateLimitError } from "citedhealth";
 - **Guides**: [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Medical Disclaimer](https://citedhealth.com/medical-disclaimer/)
 - **API**: [REST API Docs](https://citedhealth.com/developers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json)
 - **Python**: [citedhealth on PyPI](https://pypi.org/project/citedhealth/)
+- **Go**: [citedhealth-go on pkg.go.dev](https://pkg.go.dev/github.com/citedhealth/citedhealth-go)
+- **Rust**: [citedhealth on crates.io](https://crates.io/crates/citedhealth)
+- **Ruby**: [citedhealth on RubyGems](https://rubygems.org/gems/citedhealth)
 
 ## Also Available
 
 | Platform | Install | Link |
 |----------|---------|------|
 | **PyPI** | `pip install citedhealth` | [PyPI](https://pypi.org/project/citedhealth/) |
+| **Go** | `go get github.com/citedhealth/citedhealth-go` | [pkg.go.dev](https://pkg.go.dev/github.com/citedhealth/citedhealth-go) |
+| **Rust** | `cargo add citedhealth` | [crates.io](https://crates.io/crates/citedhealth) |
+| **Ruby** | `gem install citedhealth` | [RubyGems](https://rubygems.org/gems/citedhealth) |
 | **MCP** | `uvx citedhealth-mcp` | [PyPI](https://pypi.org/project/citedhealth-mcp/) |
 
 ## License
