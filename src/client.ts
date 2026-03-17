@@ -7,7 +7,7 @@ import type {
   Paper,
 } from "./types.js";
 
-const DEFAULT_BASE_URL = "https://citedhealth.com";
+const DEFAULT_BASE_URL = "https://haircited.com";
 const DEFAULT_TIMEOUT = 30_000;
 const SAFE_SEGMENT = /^[a-zA-Z0-9._-]+$/;
 

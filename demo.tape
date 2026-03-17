@@ -14,7 +14,7 @@ Type "npx citedhealth ingredients biotin"
 Enter
 Sleep 3s
 
-Type "npx citedhealth evidence biotin hair-loss"
+Type "npx citedhealth evidence biotin nutritional-deficiency-hair-loss"
 Enter
 Sleep 3s
 
