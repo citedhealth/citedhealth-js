@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/citedhealth)](https://www.npmjs.com/package/citedhealth)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](https://www.npmjs.com/package/citedhealth)
+[![Zero Runtime Dependencies](https://img.shields.io/badge/runtime_deps-0-brightgreen)](https://www.npmjs.com/package/citedhealth)
 
 TypeScript client for the [CITED Health](https://citedhealth.com) evidence-based supplement API. Query 74 ingredients, 30 conditions, 152 evidence links, and 2,881 PubMed papers — zero dependencies, native fetch.
 
@@ -23,8 +23,8 @@ CITED Health indexes PubMed research and calculates evidence grades from A (stro
   - [Search Supplement Ingredients](#search-supplement-ingredients)
   - [Check Evidence Grades](#check-evidence-grades)
   - [Search PubMed Papers](#search-pubmed-papers)
+- [Command-Line Interface](#command-line-interface)
 - [Error Handling](#error-handling)
-- [Evidence Grades](#evidence-grades)
 - [API Reference](#api-reference)
 - [TypeScript Types](#typescript-types)
 - [Learn More About Evidence-Based Supplements](#learn-more-about-evidence-based-supplements)
@@ -147,6 +147,58 @@ const paper = await client.getPaper("12345678");
 ```
 
 Learn more: [Browse Papers](https://citedhealth.com/papers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json) · [REST API Docs](https://citedhealth.com/developers/)
+
+## Command-Line Interface
+
+Query the CITED Health API directly from your terminal:
+
+```bash
+# Install globally
+npm install -g citedhealth
+
+# Or use without installing
+npx citedhealth
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `citedhealth ingredients [query]` | Search supplement ingredients |
+| `citedhealth ingredient <slug>` | Get a specific ingredient by slug |
+| `citedhealth evidence <ingredient> <condition>` | Get evidence grade for a pair |
+| `citedhealth papers [query]` | Search PubMed papers |
+| `citedhealth paper <pmid>` | Get a specific paper by PubMed ID |
+
+### Options
+
+| Option | Commands | Description |
+|--------|----------|-------------|
+| `-c, --category` | `ingredients` | Filter by category (vitamins, minerals, amino-acids, herbs) |
+| `-y, --year` | `papers` | Filter by publication year |
+| `--json` | all | Compact JSON output (default: pretty-printed) |
+
+### Examples
+
+```bash
+# Search ingredients by name
+citedhealth ingredients biotin
+
+# Filter ingredients by category
+citedhealth ingredients --category vitamins
+
+# Get evidence grade for biotin and hair loss
+citedhealth evidence biotin hair-loss
+
+# Search papers from a specific year
+citedhealth papers --year 2024
+
+# Get a specific paper by PubMed ID
+citedhealth paper 6764927
+
+# Compact JSON for piping to jq
+citedhealth papers --year 2024 --json | jq '.[0].title'
+```
 
 ## Error Handling
 
