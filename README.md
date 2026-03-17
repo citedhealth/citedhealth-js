@@ -88,7 +88,7 @@ const biotin = await client.getIngredient("biotin");
 console.log(biotin.recommended_dosage); // { general: "2.5-5mg", deficiency: "10-30mg" }
 ```
 
-Learn more: [Browse Ingredients](https://citedhealth.com/) · [Evidence Database](https://citedhealth.com/evidence/) · [Developer Docs](https://citedhealth.com/developers/)
+Learn more: [Browse Ingredients](https://citedhealth.com/) · [Evidence Database](https://citedhealth.com/api/evidence/) · [Developer Docs](https://citedhealth.com/developers/)
 
 ### Check Evidence Grades
 
@@ -120,7 +120,7 @@ console.log(evidence.summary);   // Human-readable summary
 const ev = await client.getEvidenceById(1);
 ```
 
-Learn more: [Evidence Reviews](https://citedhealth.com/evidence/) · [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com)
+Learn more: [Evidence Reviews](https://citedhealth.com/api/evidence/) · [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com)
 
 ### Search PubMed Papers
 
@@ -216,7 +216,7 @@ import { CitedHealthError, NotFoundError, RateLimitError } from "citedhealth";
 
 ## Learn More About Evidence-Based Supplements
 
-- **Tools**: [Evidence Checker](https://citedhealth.com/evidence/) · [Ingredient Browser](https://citedhealth.com/) · [Paper Search](https://citedhealth.com/papers/)
+- **Tools**: [Evidence Checker](https://citedhealth.com/api/evidence/) · [Ingredient Browser](https://citedhealth.com/) · [Paper Search](https://citedhealth.com/papers/)
 - **Browse**: [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com) · [All Ingredients](https://citedhealth.com/api/ingredients/)
 - **Guides**: [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Medical Disclaimer](https://citedhealth.com/medical-disclaimer/)
 - **API**: [REST API Docs](https://citedhealth.com/developers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json)
