@@ -49,7 +49,7 @@ const ingredients = await client.searchIngredients("biotin");
 console.log(ingredients[0].name); // "Biotin"
 
 // Get evidence grade for ingredient-condition pair
-const evidence = await client.getEvidence("biotin", "hair-loss");
+const evidence = await client.getEvidence("biotin", "nutritional-deficiency-hair-loss");
 console.log(`Grade: ${evidence.grade} — ${evidence.grade_label}`);
 // Grade: A — Strong Evidence
 
@@ -108,7 +108,7 @@ import { CitedHealth } from "citedhealth";
 const client = new CitedHealth();
 
 // Get evidence for a specific ingredient-condition pair
-const evidence = await client.getEvidence("biotin", "hair-loss");
+const evidence = await client.getEvidence("biotin", "nutritional-deficiency-hair-loss");
 console.log(`Grade ${evidence.grade}: ${evidence.total_studies} studies`);
 // Grade A: 12 studies
 
@@ -188,7 +188,7 @@ citedhealth ingredients biotin
 citedhealth ingredients --category vitamins
 
 # Get evidence grade for biotin and hair loss
-citedhealth evidence biotin hair-loss
+citedhealth evidence biotin nutritional-deficiency-hair-loss
 
 # Search papers from a specific year
 citedhealth papers --year 2024
