@@ -1,9 +1,10 @@
 # citedhealth
 
-[![npm](https://img.shields.io/npm/v/citedhealth)](https://www.npmjs.com/package/citedhealth)
+[![npm version](https://agentgif.com/badge/npm/citedhealth/version.svg)](https://www.npmjs.com/package/citedhealth)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Zero Runtime Dependencies](https://img.shields.io/badge/runtime_deps-0-brightgreen)](https://www.npmjs.com/package/citedhealth)
+[![GitHub stars](https://agentgif.com/badge/github/citedhealth/citedhealth-js/stars.svg)](https://github.com/citedhealth/citedhealth-js)
 
 TypeScript client for the [CITED Health](https://citedhealth.com) evidence-based supplement API. Query 74 ingredients, 30 conditions, 152 evidence links, and 2,881 PubMed papers — zero dependencies, native fetch.
 
@@ -12,7 +13,7 @@ CITED Health indexes PubMed research and calculates evidence grades from A (stro
 > **Explore the evidence at [citedhealth.com](https://citedhealth.com)** — [Ingredients](https://citedhealth.com/api/ingredients/) · [Evidence](https://citedhealth.com/api/evidence/) · [Papers](https://citedhealth.com/api/papers/) · [Developer Docs](https://citedhealth.com/developers/)
 
 <p align="center">
-  <img src="demo.gif" alt="citedhealth TypeScript client demo — searching biotin evidence grades, PubMed papers, and supplement data from citedhealth.com" width="800">
+  <a href="https://agentgif.com/6m8hNYBj"><img src="https://media.agentgif.com/6m8hNYBj.gif" alt="citedhealth TypeScript client demo — searching biotin evidence grades, PubMed papers, and supplement data from citedhealth.com" width="800"></a>
 </p>
 
 ## Table of Contents
