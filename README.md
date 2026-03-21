@@ -6,7 +6,7 @@
 [![Zero Runtime Dependencies](https://img.shields.io/badge/runtime_deps-0-brightgreen)](https://www.npmjs.com/package/citedhealth)
 [![GitHub stars](https://agentgif.com/badge/github/citedhealth/citedhealth-js/stars.svg)](https://github.com/citedhealth/citedhealth-js)
 
-TypeScript client for the [CITED Health](https://citedhealth.com) evidence-based supplement API. Query 74 ingredients, 30 conditions, 152 evidence links, and 2,881 PubMed papers — zero dependencies, native fetch.
+TypeScript client for the [CITED Health](https://citedhealth.com) evidence-based supplement API. Query 188 ingredients, 84 conditions, 323 evidence links, and 6,197 PubMed papers across 6 sites — zero dependencies, native fetch.
 
 CITED Health indexes PubMed research and calculates evidence grades from A (strong: multiple RCTs/meta-analyses) to F (negative: most studies show no effect). The API is free, no authentication required, and returns JSON with CORS enabled.
 
@@ -24,6 +24,9 @@ CITED Health indexes PubMed research and calculates evidence grades from A (stro
   - [Search Supplement Ingredients](#search-supplement-ingredients)
   - [Check Evidence Grades](#check-evidence-grades)
   - [Search PubMed Papers](#search-pubmed-papers)
+  - [Browse Health Conditions](#browse-health-conditions)
+  - [Explore Glossary Terms](#explore-glossary-terms)
+  - [Read Educational Guides](#read-educational-guides)
 - [Command-Line Interface](#command-line-interface)
 - [Error Handling](#error-handling)
 - [API Reference](#api-reference)
@@ -125,7 +128,7 @@ Learn more: [Evidence Reviews](https://citedhealth.com/api/evidence/) · [Gradin
 
 ### Search PubMed Papers
 
-All 2,881 papers are indexed from PubMed and enriched with citation data from Semantic Scholar. Filter by keyword or publication year.
+All 6,197 papers are indexed from PubMed and enriched with citation data from Semantic Scholar. Filter by keyword or publication year.
 
 ```typescript
 import { CitedHealth } from "citedhealth";
@@ -149,6 +152,78 @@ const paper = await client.getPaper("12345678");
 
 Learn more: [Browse Papers](https://citedhealth.com/papers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json) · [REST API Docs](https://citedhealth.com/developers/)
 
+### Browse Health Conditions
+
+84 health conditions with prevalence data, symptoms, and risk factors. Each condition links to evidence-graded supplement research.
+
+```typescript
+import { CitedHealth } from "citedhealth";
+
+const client = new CitedHealth();
+
+// List all conditions
+const conditions = await client.listConditions();
+console.log(`${conditions.length} conditions`);
+
+// Filter to featured conditions only
+const featured = await client.listConditions({ isFeatured: true });
+
+// Get a specific condition by slug
+const condition = await client.getCondition("hair-loss");
+console.log(condition.name);         // "Hair Loss"
+console.log(condition.symptoms);     // ["Thinning hair", "Receding hairline", ...]
+console.log(condition.risk_factors); // ["Genetics", "Hormonal changes", ...]
+```
+
+Learn more: [Browse Conditions](https://citedhealth.com/api/conditions/) · [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com)
+
+### Explore Glossary Terms
+
+228 glossary terms covering supplement science, clinical research methodology, and health terminology.
+
+```typescript
+import { CitedHealth } from "citedhealth";
+
+const client = new CitedHealth();
+
+// List all glossary terms
+const terms = await client.listGlossary();
+
+// Filter by category
+const scienceTerms = await client.listGlossary({ category: "science" });
+
+// Get a specific term
+const term = await client.getGlossaryTerm("bioavailability");
+console.log(term.term);             // "Bioavailability"
+console.log(term.short_definition); // Short one-liner
+console.log(term.definition);       // Full definition
+```
+
+Learn more: [Glossary](https://citedhealth.com/glossary/) · [Editorial Policy](https://citedhealth.com/editorial-policy/)
+
+### Read Educational Guides
+
+50 educational guides on supplement research, health conditions, and evidence-based wellness.
+
+```typescript
+import { CitedHealth } from "citedhealth";
+
+const client = new CitedHealth();
+
+// List all guides
+const guides = await client.listGuides();
+
+// Filter by category
+const hairGuides = await client.listGuides({ category: "hair" });
+
+// Get a specific guide
+const guide = await client.getGuide("biotin-for-hair-growth");
+console.log(guide.title);   // "Biotin for Hair Growth: What the Evidence Says"
+console.log(guide.content); // Full guide content
+```
+
+Learn more: [Browse Guides](https://citedhealth.com/guides/) · [Developer Docs](https://citedhealth.com/developers/)
+
 ## Command-Line Interface
 
 Query the CITED Health API directly from your terminal:
@@ -170,13 +245,20 @@ npx citedhealth
 | `citedhealth evidence <ingredient> <condition>` | Get evidence grade for a pair |
 | `citedhealth papers [query]` | Search PubMed papers |
 | `citedhealth paper <pmid>` | Get a specific paper by PubMed ID |
+| `citedhealth conditions` | List health conditions |
+| `citedhealth condition <slug>` | Get a specific condition by slug |
+| `citedhealth glossary` | List glossary terms |
+| `citedhealth glossary-term <slug>` | Get a specific glossary term |
+| `citedhealth guides` | List educational guides |
+| `citedhealth guide <slug>` | Get a specific guide by slug |
 
 ### Options
 
 | Option | Commands | Description |
 |--------|----------|-------------|
-| `-c, --category` | `ingredients` | Filter by category (vitamins, minerals, amino-acids, herbs) |
+| `-c, --category` | `ingredients`, `glossary`, `guides` | Filter by category |
 | `-y, --year` | `papers` | Filter by publication year |
+| `-f, --featured` | `conditions` | Only featured conditions |
 | `--json` | all | Compact JSON output (default: pretty-printed) |
 
 ### Examples
@@ -199,6 +281,24 @@ citedhealth paper 6764927
 
 # Compact JSON for piping to jq
 citedhealth papers --year 2024 --json | jq '.[0].title'
+
+# List featured conditions
+citedhealth conditions --featured
+
+# Get a specific condition
+citedhealth condition hair-loss
+
+# Browse glossary terms by category
+citedhealth glossary --category science
+
+# Get a glossary term definition
+citedhealth glossary-term bioavailability
+
+# List guides
+citedhealth guides --category hair
+
+# Get a specific guide
+citedhealth guide biotin-for-hair-growth
 ```
 
 ## Error Handling
@@ -236,6 +336,12 @@ try {
 | `getEvidenceById(id)` | Get evidence link by numeric ID | `Promise<EvidenceLink>` |
 | `searchPapers(query?, year?)` | Search PubMed papers | `Promise<Paper[]>` |
 | `getPaper(pmid)` | Get paper by PubMed ID | `Promise<Paper>` |
+| `listConditions(options?)` | List conditions, optionally filter by featured | `Promise<Condition[]>` |
+| `getCondition(slug)` | Get condition by slug | `Promise<Condition>` |
+| `listGlossary(options?)` | List glossary terms, optionally filter by category | `Promise<GlossaryTerm[]>` |
+| `getGlossaryTerm(slug)` | Get glossary term by slug | `Promise<GlossaryTerm>` |
+| `listGuides(options?)` | List guides, optionally filter by category | `Promise<Guide[]>` |
+| `getGuide(slug)` | Get guide by slug | `Promise<Guide>` |
 
 Full API documentation: [citedhealth.com/developers/](https://citedhealth.com/developers/)
 OpenAPI 3.1.0 spec: [citedhealth.com/api/openapi.json](https://citedhealth.com/api/openapi.json)
@@ -256,7 +362,10 @@ All types are exported:
 ```typescript
 import type {
   CitedHealthOptions,
+  Condition,
   EvidenceLink,
+  GlossaryTerm,
+  Guide,
   Ingredient,
   NestedCondition,
   NestedIngredient,
@@ -270,7 +379,7 @@ import { CitedHealthError, NotFoundError, RateLimitError } from "citedhealth";
 ## Learn More About Evidence-Based Supplements
 
 - **Tools**: [Evidence Checker](https://citedhealth.com/api/evidence/) · [Ingredient Browser](https://citedhealth.com/) · [Paper Search](https://citedhealth.com/papers/)
-- **Browse**: [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com) · [All Ingredients](https://citedhealth.com/api/ingredients/)
+- **Browse**: [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com) · [Gut Health](https://gutcited.com) · [Immune Health](https://immunecited.com) · [Brain Health](https://braincited.com) · [All Ingredients](https://citedhealth.com/api/ingredients/)
 - **Guides**: [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Medical Disclaimer](https://citedhealth.com/medical-disclaimer/)
 - **API**: [REST API Docs](https://citedhealth.com/developers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json)
 - **Python**: [citedhealth on PyPI](https://pypi.org/project/citedhealth/)

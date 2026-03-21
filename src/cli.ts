@@ -2,7 +2,7 @@ import { Command } from "commander";
 import { CitedHealth } from "./client.js";
 import { CitedHealthError, NotFoundError, RateLimitError } from "./errors.js";
 
-const VERSION = "0.3.0";
+const VERSION = "0.4.0";
 
 function format(data: unknown, compact: boolean): string {
   return compact ? JSON.stringify(data) : JSON.stringify(data, null, 2);
@@ -96,6 +96,96 @@ program
   .action(async (pmid: string, opts: { json?: boolean }) => {
     try {
       const result = await client.getPaper(pmid);
+      console.log(format(result, opts.json ?? false));
+    } catch (err) {
+      handleError(err);
+    }
+  });
+
+program
+  .command("conditions")
+  .description("List health conditions")
+  .option("-f, --featured", "only featured conditions")
+  .option("--json", "compact JSON output")
+  .action(async (opts: { featured?: boolean; json?: boolean }) => {
+    try {
+      const results = await client.listConditions(
+        opts.featured !== undefined ? { isFeatured: opts.featured } : undefined,
+      );
+      console.log(format(results, opts.json ?? false));
+    } catch (err) {
+      handleError(err);
+    }
+  });
+
+program
+  .command("condition")
+  .description("Get a specific condition by slug")
+  .argument("<slug>", "condition slug (e.g. hair-loss)")
+  .option("--json", "compact JSON output")
+  .action(async (slug: string, opts: { json?: boolean }) => {
+    try {
+      const result = await client.getCondition(slug);
+      console.log(format(result, opts.json ?? false));
+    } catch (err) {
+      handleError(err);
+    }
+  });
+
+program
+  .command("glossary")
+  .description("List glossary terms")
+  .option("-c, --category <category>", "filter by category")
+  .option("--json", "compact JSON output")
+  .action(async (opts: { category?: string; json?: boolean }) => {
+    try {
+      const results = await client.listGlossary(
+        opts.category ? { category: opts.category } : undefined,
+      );
+      console.log(format(results, opts.json ?? false));
+    } catch (err) {
+      handleError(err);
+    }
+  });
+
+program
+  .command("glossary-term")
+  .description("Get a specific glossary term by slug")
+  .argument("<slug>", "glossary term slug (e.g. bioavailability)")
+  .option("--json", "compact JSON output")
+  .action(async (slug: string, opts: { json?: boolean }) => {
+    try {
+      const result = await client.getGlossaryTerm(slug);
+      console.log(format(result, opts.json ?? false));
+    } catch (err) {
+      handleError(err);
+    }
+  });
+
+program
+  .command("guides")
+  .description("List educational guides")
+  .option("-c, --category <category>", "filter by category")
+  .option("--json", "compact JSON output")
+  .action(async (opts: { category?: string; json?: boolean }) => {
+    try {
+      const results = await client.listGuides(
+        opts.category ? { category: opts.category } : undefined,
+      );
+      console.log(format(results, opts.json ?? false));
+    } catch (err) {
+      handleError(err);
+    }
+  });
+
+program
+  .command("guide")
+  .description("Get a specific guide by slug")
+  .argument("<slug>", "guide slug")
+  .option("--json", "compact JSON output")
+  .action(async (slug: string, opts: { json?: boolean }) => {
+    try {
+      const result = await client.getGuide(slug);
       console.log(format(result, opts.json ?? false));
     } catch (err) {
       handleError(err);

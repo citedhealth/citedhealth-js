@@ -56,6 +56,37 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
+/** A health condition. */
+export interface Condition {
+  slug: string;
+  name: string;
+  description: string;
+  meta_description: string;
+  prevalence: string;
+  symptoms: string[];
+  risk_factors: string[];
+  is_featured: boolean;
+}
+
+/** A glossary term. */
+export interface GlossaryTerm {
+  slug: string;
+  term: string;
+  short_definition: string;
+  definition: string;
+  abbreviation: string;
+  category: string;
+}
+
+/** An educational guide. */
+export interface Guide {
+  slug: string;
+  title: string;
+  content: string;
+  category: string;
+  meta_description: string;
+}
+
 /** Client configuration options. */
 export interface CitedHealthOptions {
   baseUrl?: string;

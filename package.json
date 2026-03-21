@@ -1,7 +1,7 @@
 {
   "name": "citedhealth",
-  "version": "0.3.1",
-  "description": "TypeScript client for the CITED Health evidence-based supplement API",
+  "version": "0.4.0",
+  "description": "TypeScript client for the CITED Health evidence-based supplement API — 6 sites, 188 ingredients, 84 conditions, 6,197 papers",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

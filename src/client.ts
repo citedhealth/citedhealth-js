@@ -1,7 +1,10 @@
 import { CitedHealthError, NotFoundError, RateLimitError } from "./errors.js";
 import type {
   CitedHealthOptions,
+  Condition,
   EvidenceLink,
+  GlossaryTerm,
+  Guide,
   Ingredient,
   PaginatedResponse,
   Paper,
@@ -105,5 +108,47 @@ export class CitedHealth {
   async getPaper(pmid: string): Promise<Paper> {
     validateSegment(pmid, "pmid");
     return this.request<Paper>(`/api/papers/${pmid}/`);
+  }
+
+  // ── Conditions ──────────────────────────────────────────────────
+
+  async listConditions(options?: { isFeatured?: boolean }): Promise<Condition[]> {
+    const params: Record<string, string> = {};
+    if (options?.isFeatured !== undefined) params.is_featured = String(options.isFeatured);
+    const data = await this.request<PaginatedResponse<Condition>>("/api/conditions/", params);
+    return data.results;
+  }
+
+  async getCondition(slug: string): Promise<Condition> {
+    validateSegment(slug, "slug");
+    return this.request<Condition>(`/api/conditions/${slug}/`);
+  }
+
+  // ── Glossary ────────────────────────────────────────────────────
+
+  async listGlossary(options?: { category?: string }): Promise<GlossaryTerm[]> {
+    const params: Record<string, string> = {};
+    if (options?.category) params.category = options.category;
+    const data = await this.request<PaginatedResponse<GlossaryTerm>>("/api/glossary/", params);
+    return data.results;
+  }
+
+  async getGlossaryTerm(slug: string): Promise<GlossaryTerm> {
+    validateSegment(slug, "slug");
+    return this.request<GlossaryTerm>(`/api/glossary/${slug}/`);
+  }
+
+  // ── Guides ──────────────────────────────────────────────────────
+
+  async listGuides(options?: { category?: string }): Promise<Guide[]> {
+    const params: Record<string, string> = {};
+    if (options?.category) params.category = options.category;
+    const data = await this.request<PaginatedResponse<Guide>>("/api/guides/", params);
+    return data.results;
+  }
+
+  async getGuide(slug: string): Promise<Guide> {
+    validateSegment(slug, "slug");
+    return this.request<Guide>(`/api/guides/${slug}/`);
   }
 }
